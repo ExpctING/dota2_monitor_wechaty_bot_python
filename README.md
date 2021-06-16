@@ -52,3 +52,21 @@ A python dota2 monitor wechat bot based on wechaty
     cd dota2_monitor_wechaty_bot_python/
     screen python bot.py
 ```
+6.微信小号扫码登录
+>为了保护账号安全，请自备一个微信小号
+
+## 功能
+>向Bot账号或者Bot所在群发送指令  
+
+1./help: 
+请求帮助文本。  
+
+2./steamon (/steamoff):  
+开启（关闭）steam游戏监视模式（默认开启）  
+监视被视奸者的游戏状态 ~~杜绝小黄油吃独食~~。  
+
+3./status:  
+查询当前监视模式状态。
+
+4.ding：  
+Bot回复dong，用以检查bot是否正在运行。
