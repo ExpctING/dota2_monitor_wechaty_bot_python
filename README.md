@@ -7,6 +7,11 @@ A python dota2 monitor wechat bot based on wechaty
 参考QQ版dota2监视机器人编写，如有QQ版机器人需求，详见[Dota2和CSGO机器人](https://github.com/greenhaha/dota2_csgo_watcher_bot)和[基于mirai的dota2战报机器人](https://github.com/Inv0k3r/DOTA2_Bot)。  
 ~~本着能用就行的态度，所以会有些看起来比较奇怪的地方，比如有两个config文件。~~
 
+## 功能
+1.监控群友steam游戏状态  
+2.汇报群友dota2战报
+3.4=1确认当前dota2在线人数，~~确认是否真的是4=1~~
+
 
 ## 安装
 1.Clone本仓库 & [wechaty代码](https://github.com/wechaty/wechaty-getting-started)：  
@@ -58,15 +63,33 @@ A python dota2 monitor wechat bot based on wechaty
 ## 功能
 >向Bot账号或者Bot所在群发送指令  
 
-1./help: 
+1.``/help``: 
 请求帮助文本。  
 
-2./steamon (/steamoff):  
+2.``ding``：  
+Bot回复dong，用以检查bot是否正在运行。
+
+3.``/status``:  
+查询当前监视模式状态。
+
+4.``/steamon`` (``/steamoff``):  
 开启（关闭）steam游戏监视模式（默认开启）  
 监视被视奸者的游戏状态 ~~杜绝小黄油吃独食~~。  
 
-3./status:  
-查询当前监视模式状态。
+5.``/obon``(``/oboff``):  
+开启（关闭）dota2战报监视模式（默认开启）
 
-4.ding：  
-Bot回复dong，用以检查bot是否正在运行。
+6.``4=1``:  
+查询当前dota2在线人数
+
+7.``/room``:  
+查询微信群列表  
+
+8.``/roomfind``:  
+检查微信战报群是否找到
+
+9.``/setroom``:  
+/setroomXXX 设置微信战报群名称为XXX  
+
+## 遇到BOT出问题了该怎么办？
+Q:重启

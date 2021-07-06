@@ -27,22 +27,35 @@ def get_last_match_id_by_short_steamID(short_steamID: int) -> int:
     url = 'https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v001/?key={}' \
           '&account_id={}&matches_requested=1'.format(API_KEY, short_steamID)
     try:
-        response = requests.get(url)
-    except requests.RequestException:
+        response = requests.get(url, timeout=10)
+    except requests.RequestException as e:
+        print("Requests Error")
+        print(str(e))
         raise DOTA2HTTPError("Requests Error")
     if response.status_code >= 400:
         if response.status_code == 401:
+            print("Unauthorized request 401. Verify API key.")
             raise DOTA2HTTPError("Unauthorized request 401. Verify API key.")
         if response.status_code == 503:
-            raise DOTA2HTTPError("The server is busy or you exceeded limits. Please wait 30s and try again.")
-        raise DOTA2HTTPError("Failed to retrieve data: %s. URL: %s" % (response.status_code, url))
+            print(
+                "The server is busy or you exceeded limits. Please wait 30s and try again."
+            )
+            raise DOTA2HTTPError(
+                "The server is busy or you exceeded limits. Please wait 30s and try again."
+            )
+        print("Failed to retrieve data: %s. URL: %s" %
+              (response.status_code, url))
+        raise DOTA2HTTPError("Failed to retrieve data: %s. URL: %s" %
+                             (response.status_code, url))
 
     match = response.json()
     try:
         match_id = match["result"]["matches"][0]["match_id"]
     except KeyError:
+        print("Response Error: Key Error")
         raise DOTA2HTTPError("Response Error: Key Error")
     except IndexError:
+        print("Response Error: Index Error")
         raise DOTA2HTTPError("Response Error: Index Error")
     return match_id
 
@@ -59,8 +72,11 @@ def get_match_detail_info(match_id: int) -> Dict:
         if response.status_code == 401:
             raise DOTA2HTTPError("Unauthorized request 401. Verify API key.")
         if response.status_code == 503:
-            raise DOTA2HTTPError("The server is busy or you exceeded limits. Please wait 30s and try again.")
-        raise DOTA2HTTPError("Failed to retrieve data: %s. URL: %s" % (response.status_code, url))
+            raise DOTA2HTTPError(
+                "The server is busy or you exceeded limits. Please wait 30s and try again."
+            )
+        raise DOTA2HTTPError("Failed to retrieve data: %s. URL: %s" %
+                             (response.status_code, url))
 
     match = response.json()
     try:
@@ -81,7 +97,8 @@ def generate_match_message(match_id: int, player_list: [player]):
     except DOTA2HTTPError:
         return "DOTA2比赛战报生成失败"
 
-    start_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(match['start_time']))
+    start_time = time.strftime("%Y-%m-%d %H:%M:%S",
+                               time.localtime(match['start_time']))
     duration = match['duration']
 
     # 比赛模式
@@ -92,7 +109,8 @@ def generate_match_message(match_id: int, player_list: [player]):
     lobby = LOBBY.get(lobby_id, '未知')
 
     player_num = len(player_list)
-    nicknames = '，'.join([player_list[i].nickname for i in range(-player_num, -1)])
+    nicknames = '，'.join(
+        [player_list[i].nickname for i in range(-player_num, -1)])
     if nicknames:
         nicknames += '和'
     nicknames += player_list[-1].nickname
@@ -120,8 +138,8 @@ def generate_match_message(match_id: int, player_list: [player]):
 
     if mode_id in (15, 19):  # 各种活动模式仅简单通报
         return '{}玩了一把[{}/{}]，开始于{}，持续{}分{}秒，看起来好像是{}了。'.format(
-            nicknames, mode, lobby, start_time, duration // 60, duration % 60, "赢" if win else "输"
-        )
+            nicknames, mode, lobby, start_time, duration // 60, duration % 60,
+            "赢" if win else "输")
     # 队伍信息
     team_damage = 0
     team_kills = 0
@@ -169,16 +187,20 @@ def generate_match_message(match_id: int, player_list: [player]):
             else:
                 hero = random.choice(HEROES_LIST_CHINESE[i.hero])
         else:
-            hero = '不知道什么鬼'
+            hero = '不知道什么鬼['+i.hero+']'
         kda = i.kda
         last_hits = i.last_hit
         damage = i.damage
         kills, deaths, assists = i.dota2_kill, i.dota2_death, i.dota2_assist
         gpm, xpm = i.gpm, i.xpm
 
-        damage_rate = 0 if team_damage == 0 else (100 * (float(damage) / team_damage))
-        participation = 0 if team_kills == 0 else (100 * float(kills + assists) / team_kills)
-        deaths_rate = 0 if team_deaths == 0 else (100 * float(deaths) / team_deaths)
+        damage_rate = 0 if team_damage == 0 else (
+            100 * (float(damage) / team_damage))
+        participation = 0 if team_kills == 0 else (100 *
+                                                   float(kills + assists) /
+                                                   team_kills)
+        deaths_rate = 0 if team_deaths == 0 else (100 * float(deaths) /
+                                                  team_deaths)
 
         tosend.append(
             '{}使用{}, KDA: {:.2f}[{}/{}/{}], GPM/XPM: {}/{}, ' \
@@ -188,6 +210,7 @@ def generate_match_message(match_id: int, player_list: [player]):
         )
 
     if ENABLE_URL:
-        tosend.append('战绩详情: https://zh.dotabuff.com/matches/{}'.format(match_id))
+        tosend.append(
+            '战绩详情: https://zh.dotabuff.com/matches/{}'.format(match_id))
 
     return '\n'.join(tosend)

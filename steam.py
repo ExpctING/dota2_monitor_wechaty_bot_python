@@ -1,4 +1,5 @@
 import json
+# from random import expovariate
 import requests
 from datetime import datetime
 from config import API_KEY, PLAYER_LIST
@@ -10,9 +11,13 @@ def gaming_status_watcher():
     # status_changed = False
     sids = ','.join(str(p[1] + 76561197960265728) for p in PLAYER_LIST)
     # sids = ','.join(str(p[1]) for p in PLAYER_LIST)
-    r = requests.get(
-        f'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={API_KEY}&steamids={sids}'
-    )
+    try:
+        r = requests.get(
+            f'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={API_KEY}&steamids={sids}'
+        )
+    except requests.RequestException:
+        return
+
     j = json.loads(r.content)
     for p in j['response']['players']:
         sid = int(p['steamid'])
@@ -45,3 +50,24 @@ def gaming_status_store(short_steamID):
     now = int(datetime.now().timestamp())
     cur_game = ''
     update_playing_game(lid, cur_game, now)
+
+
+def check_dota2_online():
+    replys = []
+    sids = ','.join(str(p[1] + 76561197960265728) for p in PLAYER_LIST)
+    try:
+        r = requests.get(
+            f'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={API_KEY}&steamids={sids}'
+        )
+    except requests.RequestException:
+        return
+
+    j = json.loads(r.content)
+    for p in j['response']['players']:
+        pname = p['personaname']
+        cur_game = p.get('gameextrainfo', '')
+
+        if cur_game == "Dota 2":
+            replys.append(pname)
+
+    return '\n'.join(replys) if replys else None

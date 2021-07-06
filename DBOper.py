@@ -25,6 +25,13 @@ def update_DOTA2_match_ID(short_steamID, last_DOTA2_match_ID):
     conn.commit()
 
 
+def update_Player_NickName(short_steamID, nickname):
+    c.execute("UPDATE playerInfo SET nickname='{}' "
+              "WHERE short_steamID={}".format(nickname,
+                                              short_steamID))
+    conn.commit()
+
+
 def insert_info(short_steamID, long_steamID, nickname, last_DOTA2_match_ID):
     c.execute(
         "INSERT INTO playerInfo (short_steamID, long_steamID, nickname, last_DOTA2_match_ID) "
@@ -45,10 +52,16 @@ def get_playing_game(short_steamID):
     ret = c.execute(
         "SELECT gamename, last_update FROM playerInfo WHERE long_steamID={}".
         format(short_steamID)).fetchone()
+    # print(
+    #     "SELECT gamename, last_update FROM playerInfo WHERE long_steamID={}".
+    #     format(short_steamID))
     return (ret[0], ret[1]) if ret else ('', 0)
 
 
 def update_playing_game(short_steamID, gamename, timestamp):
+    # print(
+    #     "UPDATE playerInfo SET gamename=\"{}\", last_update={} WHERE long_steamID={}"
+    #     .format(gamename, timestamp, short_steamID))
     c.execute(
         "UPDATE playerInfo SET gamename=\"{}\", last_update={} WHERE long_steamID={}"
         .format(gamename, timestamp, short_steamID))
